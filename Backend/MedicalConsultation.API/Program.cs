@@ -39,7 +39,16 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IConsultationService, ConsultationService>();
 
-
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -47,6 +56,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseCors();
 
 app.UseAuthorization();
 

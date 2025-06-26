@@ -17,11 +17,12 @@ public class MappingProfile : Profile
         CreateMap<Consultation, ConsultationDto>()
             .ForMember(dest => dest.PatientName, opt => opt.MapFrom(src => src.Patient.Name))
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date.ToString("yyyy-MM-dd")))
-            .ForMember(dest => dest.Attachments, opt => opt.MapFrom(src => src.Attachments));
+            .ForMember(dest => dest.Attachments, opt => opt.MapFrom(src => src.Attachments ?? new List<ConsultationAttachment>()));
 
         CreateMap<CreateConsultationDto, Consultation>()
-            .ForMember(dest => dest.Date, opt => opt.Ignore()) // Handle manually in controller
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Pending"));
+            .ForMember(dest => dest.Date, opt => opt.Ignore()) // handled manually
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Pending"))
+            .ForMember(dest => dest.Attachments, opt => opt.Ignore()); // handled separately
 
         // Attachment mappings
         CreateMap<ConsultationAttachment, AttachmentDto>()

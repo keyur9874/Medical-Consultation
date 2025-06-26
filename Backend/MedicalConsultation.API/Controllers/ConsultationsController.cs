@@ -64,21 +64,11 @@ public class ConsultationsController : ControllerBase
     [HttpPatch("{id}/status")]
     public async Task<IActionResult> UpdateConsultationStatus(Guid id, UpdateConsultationStatusDto updateStatusDto)
     {
-        var consultation = await _consultationService.GetByIdAsync(id);
-        if (consultation == null)
-        {
+        var updated = await _consultationService.UpdateStatusAsync(id, updateStatusDto.Status);
+        if (updated == UpdateStatusResult.NotFound)
             return NotFound();
-        }
-
-        var validStatuses = new[] { "Pending", "Completed", "Canceled" };
-        if (!validStatuses.Contains(updateStatusDto.Status))
-        {
+        if (updated == UpdateStatusResult.InvalidStatus)
             return BadRequest("Invalid status");
-        }
-
-        consultation.Status = updateStatusDto.Status;
-        await _consultationService.UpdateAsync(consultation);
-
         return NoContent();
     }
 
