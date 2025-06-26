@@ -1,0 +1,81 @@
+import { Patient, Consultation } from '../types';
+
+export const mockPatients: Patient[] = [
+  {
+    id: '1',
+    name: 'John Smith',
+    age: 35,
+    gender: 'Male',
+    phone: '+1-555-0123',
+    email: 'john.smith@email.com',
+    address: '123 Main St, New York, NY 10001',
+    emergencyContact: 'Jane Smith - +1-555-0124',
+    createdAt: '2024-01-15T10:30:00Z',
+  },
+  {
+    id: '2',
+    name: 'Maria Garcia',
+    age: 28,
+    gender: 'Female',
+    phone: '+1-555-0125',
+    email: 'maria.garcia@email.com',
+    address: '456 Oak Ave, Los Angeles, CA 90001',
+    emergencyContact: 'Carlos Garcia - +1-555-0126',
+    createdAt: '2024-01-16T14:20:00Z',
+  },
+  {
+    id: '3',
+    name: 'David Johnson',
+    age: 42,
+    gender: 'Male',
+    phone: '+1-555-0127',
+    email: 'david.johnson@email.com',
+    address: '789 Pine St, Chicago, IL 60601',
+    emergencyContact: 'Sarah Johnson - +1-555-0128',
+    createdAt: '2024-01-17T09:15:00Z',
+  },
+];
+
+export const mockConsultations: Consultation[] = [
+  {
+    id: '1',
+    patientId: '1',
+    patientName: 'John Smith',
+    date: '2024-01-25',
+    time: '10:00',
+    status: 'Pending',
+    notes: 'Regular checkup and blood pressure monitoring',
+    attachments: [],
+    createdAt: '2024-01-20T11:00:00Z',
+  },
+  {
+    id: '2',
+    patientId: '2',
+    patientName: 'Maria Garcia',
+    date: '2024-01-24',
+    time: '14:30',
+    status: 'Completed',
+    notes: 'Follow-up appointment for diabetes management',
+    attachments: [
+      {
+        id: '1',
+        name: 'blood_test_results.pdf',
+        url: '#',
+        type: 'application/pdf',
+        size: 245760,
+      },
+    ],
+    createdAt: '2024-01-18T16:45:00Z',
+  },
+  {
+    id: '3',
+    patientId: '1',
+    patientName: 'John Smith',
+    date: '2024-01-22',
+    time: '09:00',
+    status: 'Canceled',
+    notes: 'Cancelled due to patient emergency',
+    attachments: [],
+    createdAt: '2024-01-19T13:30:00Z',
+  },
+];
