@@ -15,3 +15,13 @@ variables:
 steps:
 - script: dotnet build Backend/MedicalConsultation.API/MedicalConsultation.API.csproj --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
+- script: dotnet publish Backend/MedicalConsultation.API/MedicalConsultation.API.csproj --configuration $(buildConfiguration) --output $(publishDir)
+  displayName: 'Publish API Project'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(publishDir)'
+    ArtifactName: 'api_publish'
+    publishLocation: 'Container'
+  displayName: 'Publish API Artifact'
