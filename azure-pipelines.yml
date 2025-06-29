@@ -1,27 +1,45 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
+  webAppName: '<YOUR_WEB_APP_NAME>'
 
 steps:
-- script: dotnet build Backend/MedicalConsultation.API/MedicalConsultation.API.csproj --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-
-- script: dotnet publish Backend/MedicalConsultation.API/MedicalConsultation.API.csproj --configuration $(buildConfiguration) --output $(publishDir)
-  displayName: 'Publish API Project'
-
-- task: PublishBuildArtifacts@1
+- task: UseDotNet@2
+  displayName: 'Install .NET SDK'
   inputs:
-    PathtoPublish: '$(publishDir)'
-    ArtifactName: 'api_publish'
-    publishLocation: 'Container'
-  displayName: 'Publish API Artifact'
+    packageType: 'sdk'
+    version: '8.0.x' # Change to your required .NET version
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: 'restore'
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: 'build'
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure Web App'
+  inputs:
+    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>'
+    appName: '$(webAppName)'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
