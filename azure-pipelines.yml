@@ -6,14 +6,14 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  webAppName: '<YOUR_WEB_APP_NAME>'
+  webAppName: '<YOUR_WEB_APP_NAME>' # <-- Replace with your Azure Web App name
 
 steps:
 - task: UseDotNet@2
   displayName: 'Install .NET SDK'
   inputs:
     packageType: 'sdk'
-    version: '8.0.x' # Change to your required .NET version
+    version: '8.0.x' # <-- Set to your required .NET SDK version
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore NuGet packages'
@@ -22,14 +22,14 @@ steps:
     projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build'
+  displayName: 'Build API'
   inputs:
     command: 'build'
     projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Publish'
+  displayName: 'Publish API'
   inputs:
     command: 'publish'
     publishWebProjects: false
@@ -40,6 +40,6 @@ steps:
 - task: AzureWebApp@1
   displayName: 'Deploy to Azure Web App'
   inputs:
-    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>'
+    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>' # <-- Replace with your Azure DevOps service connection name
     appName: '$(webAppName)'
     package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
