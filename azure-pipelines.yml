@@ -1,52 +1,87 @@
 trigger:
-- main
-- master
+  - master
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: "ubuntu-latest"
 
 variables:
-  buildConfiguration: 'Release'
-  webAppName: '<YOUR_WEB_APP_NAME>'
+  buildConfiguration: "Release"
+  webAppName: "KEYUR-WEB-APP"
 
-steps:
-- task: UseDotNet@2
-  displayName: 'Install .NET 8 SDK'
-  inputs:
-    packageType: 'sdk'
-    version: '8.0.x'
+stages:
+  - stage: Build
+    displayName: "Build and Publish API"
+    jobs:
+      - job: Build
+        steps:
+          - task: UseDotNet@2
+            displayName: "Install .NET 8 SDK"
+            inputs:
+              packageType: "sdk"
+              version: "8.0.x"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Restore NuGet packages'
-  inputs:
-    command: 'restore'
-    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+          - task: DotNetCoreCLI@2
+            displayName: "Restore NuGet packages"
+            inputs:
+              command: "restore"
+              projects: "Backend/MedicalConsultation.API/MedicalConsultation.API.csproj"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Clean'
-  inputs:
-    command: 'clean'
-    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+          # Optional Clean step
+          # - task: DotNetCoreCLI@2
+          #   displayName: 'Clean'
+          #   inputs:
+          #     command: 'custom'
+          #     custom: 'clean'
+          #     projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build API'
-  inputs:
-    command: 'build'
-    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+          - task: DotNetCoreCLI@2
+            displayName: "Build API"
+            inputs:
+              command: "build"
+              projects: "Backend/MedicalConsultation.API/MedicalConsultation.API.csproj"
+              arguments: "--configuration $(buildConfiguration)"
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish API'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true
+          - task: DotNetCoreCLI@2
+            displayName: "Publish API"
+            inputs:
+              command: "publish"
+              publishWebProjects: false
+              projects: "Backend/MedicalConsultation.API/MedicalConsultation.API.csproj"
+              arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)"
+              zipAfterPublish: true
 
-- task: AzureWebApp@1
-  displayName: 'Deploy to Azure Web App'
-  inputs:
-    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>'
-    appName: '$(webAppName)'
-    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+          - task: PublishBuildArtifacts@1
+            displayName: "Publish Artifact: drop"
+            inputs:
+              PathtoPublish: "$(Build.ArtifactStagingDirectory)"
+              ArtifactName: "drop"
+              publishLocation: "Container"
+
+  - stage: Deploy
+    displayName: "Deploy to Azure Web App"
+    dependsOn: Build
+    jobs:
+      - deployment: DeployWeb
+        environment: "production"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download Build Artifacts"
+                  inputs:
+                    buildType: "current"
+                    downloadType: "single"
+                    artifactName: "drop"
+                    downloadPath: "$(Pipeline.Workspace)"
+
+                - task: AzureRmWebAppDeployment@5
+                  displayName: "Deploy to Azure Web App"
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "KEYUR-WEB-APP-DEPLOYMENT"
+                    appType: "webAppLinux"
+                    WebAppName: "KEYUR-WEB-APP"
+                    packageForLinux: "$(Pipeline.Workspace)/drop/**/*.zip"
+                    RuntimeStack: "DOTNETCORE|8.0"
+                    DeploymentTypeLinux: "oneDeploy"
