@@ -14,7 +14,8 @@ namespace MedicalConsultation.Service.Contract
         Task<ConsultationDto?> GetByIdAsync(Guid id);
         Task<IEnumerable<ConsultationDto>> GetConsultationsByPatient(Guid patientId);
         Task<ConsultationDto> CreateConsultation(CreateConsultationDto createConsultationDto);
-        Task<ConsultationDto> UpdateAsync(ConsultationDto consultation);
+        //Task<ConsultationDto> UpdateAsync(ConsultationDto consultation);
+        Task<UpdateStatusResult> UpdateStatusAsync(Guid id, string newStatus);
         Task<bool> DeleteConsultation(Guid id);
     }
 }

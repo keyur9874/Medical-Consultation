@@ -190,7 +190,7 @@ const ConsultationForm: React.FC<ConsultationFormProps> = ({
           <Col xs={24}>
             <Form.Item label="Attachments (Optional)">
               <Upload.Dragger {...uploadProps}>
-                <p className="ant-upload-drag-icon">
+                <p className="ant-upload-drag-icon justify-items-center">
                   <UploadIcon size={48} className="text-blue-400" />
                 </p>
                 <p className="ant-upload-text">

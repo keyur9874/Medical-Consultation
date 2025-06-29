@@ -1,0 +1,52 @@
+trigger:
+- main
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  webAppName: '<YOUR_WEB_APP_NAME>'
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET 8 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: 'restore'
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Clean'
+  inputs:
+    command: 'clean'
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build API'
+  inputs:
+    command: 'build'
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish API'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'Backend/MedicalConsultation.API/MedicalConsultation.API.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: true
+
+- task: AzureWebApp@1
+  displayName: 'Deploy to Azure Web App'
+  inputs:
+    azureSubscription: '<YOUR_AZURE_SERVICE_CONNECTION>'
+    appName: '$(webAppName)'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'

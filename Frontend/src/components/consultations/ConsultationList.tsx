@@ -30,6 +30,7 @@ import type { ColumnsType } from "antd/es/table";
 
 import { Consultation } from "../../types";
 import { apiService } from "../../services/api";
+import "./ConsultationList.css";
 
 const { Option } = Select;
 
@@ -226,11 +227,24 @@ const ConsultationList: React.FC = () => {
                 type="text"
                 size="small"
                 icon={<Download size={14} />}
-                onClick={() =>
-                  message.info(
-                    "File download functionality would be implemented here"
-                  )
-                }
+                onClick={() => {
+                  record.attachments.forEach((file) => {
+                    apiService
+                      .downloadFile("consultation-attachments", file.url)
+                      .then((blob) => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = file.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                      })
+                      .catch(() => {
+                        message.error("Failed to download file");
+                      });
+                  });
+                }}
                 className="text-blue-600 hover:text-blue-700"
               >
                 {record.attachments.length}
@@ -401,17 +415,6 @@ const ConsultationList: React.FC = () => {
           </div>
         )}
       </Modal>
-
-      <style jsx>{`
-        .consultation-table .ant-table-thead > tr > th {
-          background-color: #fafafa;
-          font-weight: 600;
-        }
-
-        .consultation-table .ant-table-tbody > tr:hover > td {
-          background-color: #f8faff;
-        }
-      `}</style>
     </>
   );
 };

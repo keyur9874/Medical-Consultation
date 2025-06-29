@@ -103,13 +103,28 @@ namespace MedicalConsultation.Service.Service
         }
 
 
-        public async Task<ConsultationDto> UpdateAsync(ConsultationDto consultationDtos)
-        {
-            var consultations = _mapper.Map<Consultation>(consultationDtos);
-            var updatedConsultations = await _consultationRepository.UpdateAsync(consultations);
+        //public async Task<ConsultationDto> UpdateAsync(ConsultationDto consultationDtos)
+        //{
+        //    var consultations = _mapper.Map<Consultation>(consultationDtos);
+        //    var updatedConsultations = await _consultationRepository.UpdateAsync(consultations);
 
-            var updatedConsultationDto = _mapper.Map<ConsultationDto>(updatedConsultations);
-            return updatedConsultationDto;
+        //    var updatedConsultationDto = _mapper.Map<ConsultationDto>(updatedConsultations);
+        //    return updatedConsultationDto;
+        //}
+
+        public async Task<UpdateStatusResult> UpdateStatusAsync(Guid id, string newStatus)
+        {
+            var consultation = await _consultationRepository.GetByIdAsync(id);
+            if (consultation == null)
+                return UpdateStatusResult.NotFound;
+
+            var validStatuses = new[] { "Pending", "Completed", "Canceled" };
+            if (!validStatuses.Contains(newStatus))
+                return UpdateStatusResult.InvalidStatus;
+
+            consultation.Status = newStatus;
+            await _consultationRepository.UpdateAsync(consultation);
+            return UpdateStatusResult.Success;
         }
 
         public Task<bool> DeleteConsultation(Guid id)

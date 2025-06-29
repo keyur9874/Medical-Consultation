@@ -37,3 +37,9 @@ public class AttachmentDto
     public string Type { get; set; } = string.Empty;
     public long Size { get; set; }
 }
+public enum UpdateStatusResult
+{
+    Success,
+    NotFound,
+    InvalidStatus
+}
