@@ -5,7 +5,7 @@ import {
   CreateConsultationRequest,
 } from "../types";
 
-const baseUrl = "keyur-web-app.azurewebsites.net/api";
+const baseUrl = "https://keyur-web-app.azurewebsites.net/api";
 
 class ApiService {
   async getPatients(): Promise<Patient[]> {
